@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="1. 观察者模式 (Observer Pattern)这是最直接、最经典的解决方案，也是Qt信号&#x2F;槽机制的理论基础。 核心思想： 定义一种一对多的依赖关系，当一个对象（Subject，主题）的状态发生改变时，所有依赖于它的对象（Observers，观察者）都会得到通知并自动更新。 实现方式： 123456789101112131415161718192021222324252627282">
+<meta property="og:type" content="article">
+<meta property="og:title" content="信号与槽AI">
+<meta property="og:url" content="http://example.com/2025/09/22/Qt_study/%E4%BF%A1%E5%8F%B7%E4%B8%8E%E6%A7%BD%E7%9A%84%E4%BC%98%E5%8A%BF/index.html">
+<meta property="og:site_name" content="ljn&#39;s 学习笔记">
+<meta property="og:description" content="1. 观察者模式 (Observer Pattern)这是最直接、最经典的解决方案，也是Qt信号&#x2F;槽机制的理论基础。 核心思想： 定义一种一对多的依赖关系，当一个对象（Subject，主题）的状态发生改变时，所有依赖于它的对象（Observers，观察者）都会得到通知并自动更新。 实现方式： 123456789101112131415161718192021222324252627282">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-09-22T01:35:41.319Z">
+<meta property="article:modified_time" content="2025-09-22T01:39:25.882Z">
+<meta property="article:author" content="ljn">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://example.com/2025/09/22/Qt_study/%E4%BF%A1%E5%8F%B7%E4%B8%8E%E6%A7%BD%E7%9A%84%E4%BC%98%E5%8A%BF/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>信号与槽AI | ljn's 学习笔记</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">ljn's 学习笔记</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2025/09/22/Qt_study/%E4%BF%A1%E5%8F%B7%E4%B8%8E%E6%A7%BD%E7%9A%84%E4%BC%98%E5%8A%BF/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="ljn">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ljn's 学习笔记">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          信号与槽AI
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2025-09-22 09:35:41 / 修改时间：09:39:25" itemprop="dateCreated datePublished" datetime="2025-09-22T09:35:41+08:00">2025-09-22</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h3 id="1-观察者模式-Observer-Pattern"><a href="#1-观察者模式-Observer-Pattern" class="headerlink" title="1. 观察者模式 (Observer Pattern)"></a>1. 观察者模式 (Observer Pattern)</h3><p>这是最直接、最经典的解决方案，也是Qt信号&#x2F;槽机制的理论基础。</p>
+<p><strong>核心思想：</strong> 定义一种<strong>一对多</strong>的依赖关系，当一个对象（Subject，主题）的状态发生改变时，所有依赖于它的对象（Observers，观察者）都会得到通知并自动更新。</p>
+<p><strong>实现方式：</strong></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;vector&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;algorithm&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;memory&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 前向声明</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Observer</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 主题 (Subject) 接口</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Subject</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="keyword">virtual</span> ~<span class="built_in">Subject</span>() = <span class="keyword">default</span>;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">attach</span><span class="params">(std::weak_ptr&lt;Observer&gt; observer)</span> </span>= <span class="number">0</span>;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">detach</span><span class="params">(std::weak_ptr&lt;Observer&gt; observer)</span> </span>= <span class="number">0</span>;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">notify</span><span class="params">()</span> </span>= <span class="number">0</span>;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 观察者 (Observer) 接口</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Observer</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="keyword">virtual</span> ~<span class="built_in">Observer</span>() = <span class="keyword">default</span>;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">update</span><span class="params">()</span> </span>= <span class="number">0</span>;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 具体的主题（例如：后台工作线程）</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">ConcreteSubject</span> : <span class="keyword">public</span> Subject, <span class="keyword">public</span> std::enable_shared_from_this&lt;ConcreteSubject&gt; &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">doWork</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        std::cout &lt;&lt; <span class="string">&quot;Working...&quot;</span> &lt;&lt; std::endl;</span><br><span class="line">        <span class="comment">// ... 一些工作 ...</span></span><br><span class="line">        std::cout &lt;&lt; <span class="string">&quot;Work done! Notifying observers.&quot;</span> &lt;&lt; std::endl;</span><br><span class="line">        <span class="built_in">notify</span>(); <span class="comment">// 工作完成，通知所有观察者</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">attach</span><span class="params">(std::weak_ptr&lt;Observer&gt; observer)</span> <span class="keyword">override</span> </span>&#123;</span><br><span class="line">        observers_.<span class="built_in">push_back</span>(observer);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">detach</span><span class="params">(std::weak_ptr&lt;Observer&gt; observer)</span> <span class="keyword">override</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 在实际项目中，这里需要更复杂的逻辑来清理失效的 weak_ptr</span></span><br><span class="line">        observers_.<span class="built_in">erase</span>(</span><br><span class="line">            std::<span class="built_in">remove_if</span>(observers_.<span class="built_in">begin</span>(), observers_.<span class="built_in">end</span>(),</span><br><span class="line">                [&amp;observer](<span class="type">const</span> std::weak_ptr&lt;Observer&gt;&amp; wp) &#123;</span><br><span class="line">                    <span class="keyword">return</span> wp.<span class="built_in">lock</span>() == observer.<span class="built_in">lock</span>();</span><br><span class="line">                &#125;),</span><br><span class="line">            observers_.<span class="built_in">end</span>());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">notify</span><span class="params">()</span> <span class="keyword">override</span> </span>&#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">auto</span> it = observers_.<span class="built_in">begin</span>(); it != observers_.<span class="built_in">end</span>(); ) &#123;</span><br><span class="line">            <span class="keyword">if</span> (<span class="keyword">auto</span> obs = it-&gt;<span class="built_in">lock</span>()) &#123;</span><br><span class="line">                obs-&gt;<span class="built_in">update</span>();</span><br><span class="line">                ++it;</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="comment">// 观察者对象已被销毁，移除失效的 weak_ptr</span></span><br><span class="line">                it = observers_.<span class="built_in">erase</span>(it);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    std::vector&lt;std::weak_ptr&lt;Observer&gt;&gt; observers_;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 具体的观察者（例如：UI更新器）</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">ConcreteObserver</span> : <span class="keyword">public</span> Observer, <span class="keyword">public</span> std::enable_shared_from_this&lt;ConcreteObserver&gt; &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">ConcreteObserver</span>(<span class="type">const</span> std::string&amp; name) : <span class="built_in">name_</span>(name) &#123;&#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">update</span><span class="params">()</span> <span class="keyword">override</span> </span>&#123;</span><br><span class="line">        std::cout &lt;&lt; <span class="string">&quot;Observer &quot;</span> &lt;&lt; name_ &lt;&lt; <span class="string">&quot;: Received update! Updating UI...&quot;</span> &lt;&lt; std::endl;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 一个便捷函数，用于将自己注册到主题</span></span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">subscribeTo</span><span class="params">(<span class="type">const</span> std::shared_ptr&lt;Subject&gt;&amp; subject)</span> </span>&#123;</span><br><span class="line">        subject_ = subject;</span><br><span class="line">        subject_-&gt;<span class="built_in">attach</span>(std::<span class="built_in">weak_ptr</span>&lt;Observer&gt;(<span class="built_in">shared_from_this</span>()));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">unsubscribe</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (<span class="keyword">auto</span> sub = subject_.<span class="built_in">lock</span>()) &#123;</span><br><span class="line">            sub-&gt;<span class="built_in">detach</span>(std::<span class="built_in">weak_ptr</span>&lt;Observer&gt;(<span class="built_in">shared_from_this</span>()));</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    std::string name_;</span><br><span class="line">    std::weak_ptr&lt;Subject&gt; subject_;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 使用示例</span></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">auto</span> worker = std::<span class="built_in">make_shared</span>&lt;ConcreteSubject&gt;();</span><br><span class="line">    <span class="keyword">auto</span> uiUpdater1 = std::<span class="built_in">make_shared</span>&lt;ConcreteObserver&gt;(<span class="string">&quot;UI 1&quot;</span>);</span><br><span class="line">    <span class="keyword">auto</span> uiUpdater2 = std::<span class="built_in">make_shared</span>&lt;ConcreteObserver&gt;(<span class="string">&quot;UI 2&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 建立订阅关系（松耦合：Worker不知道谁订阅了它）</span></span><br><span class="line">    uiUpdater1-&gt;<span class="built_in">subscribeTo</span>(worker);</span><br><span class="line">    uiUpdater2-&gt;<span class="built_in">subscribeTo</span>(worker);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 执行工作，自动通知所有订阅者</span></span><br><span class="line">    worker-&gt;<span class="built_in">doWork</span>();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 一个观察者取消订阅</span></span><br><span class="line">    uiUpdater1-&gt;<span class="built_in">unsubscribe</span>();</span><br><span class="line">    std::cout &lt;&lt; <span class="string">&quot;\n--- After unsubscribe ---\n&quot;</span>;</span><br><span class="line">    worker-&gt;<span class="built_in">doWork</span>();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>优点：</strong> 实现了松耦合，Subject不需要知道Observer的具体细节。<br><strong>缺点：</strong> 需要自己管理Observer的注册、注销和生命周期（使用<code>std::weak_ptr</code>防止悬挂指针）。</p>
+<hr>
+<h3 id="2-回调函数-Callbacks-函数对象-Function-Objects-std-function"><a href="#2-回调函数-Callbacks-函数对象-Function-Objects-std-function" class="headerlink" title="2. 回调函数 (Callbacks) &#x2F; 函数对象 (Function Objects &#x2F; std::function)"></a>2. 回调函数 (Callbacks) &#x2F; 函数对象 (Function Objects &#x2F; std::function)</h3><p>这是一种更轻量级的方式，特别适合一对一的通信场景。</p>
+<p><strong>实现方式：</strong></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;functional&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;vector&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Worker</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="comment">// 使用 std::function 定义回调类型</span></span><br><span class="line">    <span class="keyword">using</span> Callback = std::function&lt;<span class="built_in">void</span>(<span class="type">int</span> result)&gt;;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">setCompletionCallback</span><span class="params">(<span class="type">const</span> Callback&amp; cb)</span> </span>&#123;</span><br><span class="line">        completionCallback_ = cb;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">addProgressCallback</span><span class="params">(<span class="type">const</span> Callback&amp; cb)</span> </span>&#123;</span><br><span class="line">        progressCallbacks_.<span class="built_in">push_back</span>(cb);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">doWork</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt;= <span class="number">100</span>; i += <span class="number">25</span>) &#123;</span><br><span class="line">            std::cout &lt;&lt; <span class="string">&quot;Progress: &quot;</span> &lt;&lt; i &lt;&lt; <span class="string">&quot;%&quot;</span> &lt;&lt; std::endl;</span><br><span class="line">            <span class="comment">// 通知所有进度回调（模拟一对多）</span></span><br><span class="line">            <span class="keyword">for</span> (<span class="type">const</span> <span class="keyword">auto</span>&amp; cb : progressCallbacks_) &#123;</span><br><span class="line">                <span class="keyword">if</span> (cb) <span class="built_in">cb</span>(i);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// 工作完成，通知完成回调</span></span><br><span class="line">        <span class="keyword">if</span> (completionCallback_) &#123;</span><br><span class="line">            <span class="built_in">completionCallback_</span>(<span class="number">42</span>); <span class="comment">// 假设结果是42</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    Callback completionCallback_;</span><br><span class="line">    std::vector&lt;Callback&gt; progressCallbacks_;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 一个接收通知的类</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">UI</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">updateProgress</span><span class="params">(<span class="type">int</span> value)</span> </span>&#123;</span><br><span class="line">        std::cout &lt;&lt; <span class="string">&quot;UI: Updating progress bar to &quot;</span> &lt;&lt; value &lt;&lt; <span class="string">&quot;%&quot;</span> &lt;&lt; std::endl;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">handleResult</span><span class="params">(<span class="type">int</span> result)</span> </span>&#123;</span><br><span class="line">        std::cout &lt;&lt; <span class="string">&quot;UI: Got result: &quot;</span> &lt;&lt; result &lt;&lt; std::endl;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    Worker worker;</span><br><span class="line">    UI ui;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 设置回调（建立连接）</span></span><br><span class="line">    worker.<span class="built_in">setCompletionCallback</span>([&amp;ui](<span class="type">int</span> result) &#123; ui.<span class="built_in">handleResult</span>(result); &#125;);</span><br><span class="line">    worker.<span class="built_in">addProgressCallback</span>([&amp;ui](<span class="type">int</span> progress) &#123; ui.<span class="built_in">updateProgress</span>(progress); &#125;);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 也可以使用lambda直接处理</span></span><br><span class="line">    worker.<span class="built_in">addProgressCallback</span>([](<span class="type">int</span> progress) &#123;</span><br><span class="line">        std::cout &lt;&lt; <span class="string">&quot;Logger: Progress is &quot;</span> &lt;&lt; progress &lt;&lt; <span class="string">&quot;%&quot;</span> &lt;&lt; std::endl;</span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">    worker.<span class="built_in">doWork</span>();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>优点：</strong> 非常灵活，语法简单，C++11及以上标准支持良好。<br><strong>缺点：</strong> 一对多需要自己管理回调列表。要非常小心<strong>回调函数和对象的生命周期</strong>（上面的例子使用了lambda捕获引用<code>&amp;ui</code>，如果<code>ui</code>先于<code>worker</code>被销毁，就会导致未定义行为）。</p>
+<hr>
+<h3 id="3-基于事件的系统-Event-Bus"><a href="#3-基于事件的系统-Event-Bus" class="headerlink" title="3. 基于事件的系统 (Event Bus)"></a>3. 基于事件的系统 (Event Bus)</h3><p>这是一个更高级、更通用的模式，常用于大型应用程序，它本身是一个中央调度器。</p>
+<p><strong>简化实现：</strong></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;map&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;vector&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;functional&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;memory&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;string&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 任何需要传递的事件数据都可以继承自此类</span></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">Event</span> &#123;</span><br><span class="line">    <span class="keyword">virtual</span> ~<span class="built_in">Event</span>() = <span class="keyword">default</span>;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 具体的事件类型</span></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">WorkCompletedEvent</span> : <span class="keyword">public</span> Event &#123;</span><br><span class="line">    <span class="type">int</span> result;</span><br><span class="line">    <span class="built_in">WorkCompletedEvent</span>(<span class="type">int</span> r) : <span class="built_in">result</span>(r) &#123;&#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">ProgressUpdatedEvent</span> : <span class="keyword">public</span> Event &#123;</span><br><span class="line">    <span class="type">int</span> progress;</span><br><span class="line">    <span class="built_in">ProgressUpdatedEvent</span>(<span class="type">int</span> p) : <span class="built_in">progress</span>(p) &#123;&#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 事件总线（通常是单例）</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">EventBus</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="keyword">using</span> Subscriber = std::function&lt;<span class="built_in">void</span>(<span class="type">const</span> Event&amp;)&gt;;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 订阅特定类型的事件</span></span><br><span class="line">    <span class="keyword">template</span> &lt;<span class="keyword">typename</span> EventType&gt;</span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">subscribe</span><span class="params">(Subscriber subscriber)</span> </span>&#123;</span><br><span class="line">        subscribers_[<span class="built_in">typeid</span>(EventType).<span class="built_in">name</span>()].<span class="built_in">push_back</span>(subscriber);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 发布一个事件</span></span><br><span class="line">    <span class="keyword">template</span> &lt;<span class="keyword">typename</span> EventType&gt;</span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">publish</span><span class="params">(<span class="type">const</span> EventType&amp; event)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">auto</span> it = subscribers_.<span class="built_in">find</span>(<span class="built_in">typeid</span>(EventType).<span class="built_in">name</span>());</span><br><span class="line">        <span class="keyword">if</span> (it != subscribers_.<span class="built_in">end</span>()) &#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="type">const</span> <span class="keyword">auto</span>&amp; subscriber : it-&gt;second) &#123;</span><br><span class="line">                <span class="built_in">subscriber</span>(event);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    std::map&lt;std::string, std::vector&lt;Subscriber&gt;&gt; subscribers_;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 使用示例</span></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    EventBus bus;</span><br><span class="line"></span><br><span class="line">    <span class="function">Worker <span class="title">worker</span><span class="params">(bus)</span></span>; <span class="comment">// 假设Worker接收一个EventBus引用</span></span><br><span class="line">    <span class="function">UI <span class="title">ui</span><span class="params">(bus)</span></span>;         <span class="comment">// UI也接收一个EventBus引用</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 在UI内部某处进行订阅</span></span><br><span class="line">    bus.<span class="built_in">subscribe</span>&lt;ProgressUpdatedEvent&gt;([](<span class="type">const</span> Event&amp; e) &#123;</span><br><span class="line">        <span class="type">const</span> <span class="keyword">auto</span>&amp; event = <span class="built_in">static_cast</span>&lt;<span class="type">const</span> ProgressUpdatedEvent&amp;&gt;(e);</span><br><span class="line">        std::cout &lt;&lt; <span class="string">&quot;UI Event: Progress &quot;</span> &lt;&lt; event.progress &lt;&lt; <span class="string">&quot;%&quot;</span> &lt;&lt; std::endl;</span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">    bus.<span class="built_in">subscribe</span>&lt;WorkCompletedEvent&gt;([](<span class="type">const</span> Event&amp; e) &#123;</span><br><span class="line">        <span class="type">const</span> <span class="keyword">auto</span>&amp; event = <span class="built_in">static_cast</span>&lt;<span class="type">const</span> WorkCompletedEvent&amp;&gt;(e);</span><br><span class="line">        std::cout &lt;&lt; <span class="string">&quot;UI Event: Result &quot;</span> &lt;&lt; event.result &lt;&lt; std::endl;</span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Worker在执行过程中发布事件</span></span><br><span class="line">    <span class="comment">// worker.doWork() 内部会调用 bus.publish(ProgressUpdatedEvent(50));</span></span><br><span class="line">    <span class="comment">// 和 bus.publish(WorkCompletedEvent(100));</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 注：这是一个简化版，完整实现需要考虑线程安全、异常处理等。</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>优点：</strong> 极度松耦合，组件之间通过事件通信，完全不知道对方的存在。非常灵活和强大。<br><strong>缺点：</strong> 实现相对复杂，调试可能更困难（事件流不直观）。</p>
+<h3 id="总结：纯C-的解决方案"><a href="#总结：纯C-的解决方案" class="headerlink" title="总结：纯C++的解决方案"></a>总结：纯C++的解决方案</h3><table>
+<thead>
+<tr>
+<th align="left">方法</th>
+<th align="left">适用场景</th>
+<th align="left">优点</th>
+<th align="left">缺点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>观察者模式</strong></td>
+<td align="left">经典的一对多通知，结构清晰</td>
+<td align="left">松耦合，意图明确</td>
+<td align="left">需要自己实现和管理，代码量稍大</td>
+</tr>
+<tr>
+<td align="left"><strong>回调函数 (<code>std::function</code>)</strong></td>
+<td align="left">轻量级，一对一或简单一对多</td>
+<td align="left">灵活，简单，现代C++标准支持</td>
+<td align="left">生命周期管理需谨慎，一对多需自行维护列表</td>
+</tr>
+<tr>
+<td align="left"><strong>事件总线 (Event Bus)</strong></td>
+<td align="left">大型应用，复杂组件间通信</td>
+<td align="left">极度松耦合，高度灵活</td>
+<td align="left">实现复杂，系统行为不易跟踪，调试难</td>
+</tr>
+</tbody></table>
+<p><strong>Qt的信号&#x2F;槽机制可以看作是这些模式的一个集大成者：</strong><br>它提供了<strong>观察者模式</strong>的清晰结构，用起来像<strong>回调函数</strong>一样简单直观，并且通过元对象系统实现了比手动<strong>事件总线</strong>更强大、更安全、更易用的功能。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2025/09/22/Qt_study/%E8%AE%A1%E7%AE%97%E5%99%A8/" rel="prev" title="计算器">
+      <i class="fa fa-chevron-left"></i> 计算器
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E8%A7%82%E5%AF%9F%E8%80%85%E6%A8%A1%E5%BC%8F-Observer-Pattern"><span class="nav-number">1.</span> <span class="nav-text">1. 观察者模式 (Observer Pattern)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E5%9B%9E%E8%B0%83%E5%87%BD%E6%95%B0-Callbacks-%E5%87%BD%E6%95%B0%E5%AF%B9%E8%B1%A1-Function-Objects-std-function"><span class="nav-number">2.</span> <span class="nav-text">2. 回调函数 (Callbacks) &#x2F; 函数对象 (Function Objects &#x2F; std::function)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E5%9F%BA%E4%BA%8E%E4%BA%8B%E4%BB%B6%E7%9A%84%E7%B3%BB%E7%BB%9F-Event-Bus"><span class="nav-number">3.</span> <span class="nav-text">3. 基于事件的系统 (Event Bus)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%BB%E7%BB%93%EF%BC%9A%E7%BA%AFC-%E7%9A%84%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88"><span class="nav-number">4.</span> <span class="nav-text">总结：纯C++的解决方案</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">ljn</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">11</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">ljn</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

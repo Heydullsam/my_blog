@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="learned 重载QPaintEvent::paintEvent, 使之能够加载图片 snprintf基于printf处理字符串，QString中.arg()可以模拟，注意参数是%num; connect调用的函数必须加&amp; Qpixmap::scale()用于调整大小 Widget::update直接更新窗口 透明窗口、透明背景、与移动  123this-&gt;setWindowFla">
+<meta property="og:type" content="article">
+<meta property="og:title" content="desktop_pet_cat">
+<meta property="og:url" content="http://example.com/2025/09/22/Qt_study/desktop_cat/index.html">
+<meta property="og:site_name" content="ljn&#39;s 学习笔记">
+<meta property="og:description" content="learned 重载QPaintEvent::paintEvent, 使之能够加载图片 snprintf基于printf处理字符串，QString中.arg()可以模拟，注意参数是%num; connect调用的函数必须加&amp; Qpixmap::scale()用于调整大小 Widget::update直接更新窗口 透明窗口、透明背景、与移动  123this-&gt;setWindowFla">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-09-22T01:35:41.281Z">
+<meta property="article:modified_time" content="2025-09-22T01:39:51.066Z">
+<meta property="article:author" content="ljn">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://example.com/2025/09/22/Qt_study/desktop_cat/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>desktop_pet_cat | ljn's 学习笔记</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">ljn's 学习笔记</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2025/09/22/Qt_study/desktop_cat/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="ljn">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ljn's 学习笔记">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          desktop_pet_cat
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2025-09-22 09:35:41 / 修改时间：09:39:51" itemprop="dateCreated datePublished" datetime="2025-09-22T09:35:41+08:00">2025-09-22</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="learned"><a href="#learned" class="headerlink" title="learned"></a>learned</h1><ul>
+<li>重载QPaintEvent::paintEvent, 使之能够加载图片</li>
+<li>snprintf基于printf处理字符串，QString中.arg()可以模拟，注意参数是%num;</li>
+<li>connect调用的函数必须加&amp;</li>
+<li>Qpixmap::scale()用于调整大小</li>
+<li>Widget::update直接更新窗口</li>
+<li>透明窗口、透明背景、与移动</li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">this</span>-&gt;<span class="built_in">setWindowFlag</span>(Qt::FramelessWindowHint);     <span class="comment">// 去除窗口边框</span></span><br><span class="line">    <span class="keyword">this</span>-&gt;<span class="built_in">setAttribute</span>(Qt::WA_TranslucentBackground); <span class="comment">// 背景透明</span></span><br><span class="line">    <span class="keyword">this</span>-&gt;<span class="built_in">installEventFilter</span>(<span class="keyword">new</span> DragFilter);</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>最小化系统图标的使用</li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">QSystemTrayIcon <span class="title">sysTray</span><span class="params">(QIcon(<span class="string">&quot;:/pic/image/icon.png&quot;</span>),&amp;w)</span></span>;</span><br><span class="line">    QMenu menu;</span><br><span class="line">    <span class="keyword">auto</span> showAct=<span class="keyword">new</span> <span class="built_in">QAction</span>(<span class="string">&quot;show&quot;</span>,&amp;sysTray);</span><br><span class="line">    <span class="keyword">auto</span> exitAct=<span class="keyword">new</span> <span class="built_in">QAction</span>(<span class="string">&quot;exit&quot;</span>,&amp;sysTray);</span><br><span class="line">    QObject::<span class="built_in">connect</span>(showAct,&amp;QAction::triggered,&amp;w,[&amp;]()&#123;</span><br><span class="line">        w.<span class="built_in">setVisible</span>(<span class="literal">true</span>);</span><br><span class="line">    &#125;);</span><br><span class="line">    QObject::<span class="built_in">connect</span>(exitAct,&amp;QAction::triggered,&amp;a,[&amp;]()&#123;</span><br><span class="line">        QApplication::<span class="built_in">quit</span>();</span><br><span class="line">    &#125;);</span><br><span class="line">    menu.<span class="built_in">addAction</span>(showAct);</span><br><span class="line">    menu.<span class="built_in">addAction</span>(exitAct);</span><br><span class="line"></span><br><span class="line">    sysTray.<span class="built_in">setContextMenu</span>(&amp;menu);</span><br><span class="line"></span><br><span class="line">    sysTray.<span class="built_in">show</span>();</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>widget::setVisible暂时关闭窗口</li>
+<li>QUrl更安全的跨平台链接</li>
+<li>Q_ENUM_NS(RoleAct)&#x2F;&#x2F;注册枚举</li>
+</ul>
+<h1 id="new-learn"><a href="#new-learn" class="headerlink" title="new_learn"></a>new_learn</h1><p>拖动窗口的内置函数实现</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (w-&gt;<span class="built_in">windowHandle</span>())</span><br><span class="line">                &#123;</span><br><span class="line">                    w-&gt;<span class="built_in">windowHandle</span>()-&gt;<span class="built_in">startSystemMove</span>();</span><br><span class="line">                    <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">                &#125;</span><br></pre></td></tr></table></figure>
+<h1 id="code"><a href="#code" class="headerlink" title="code"></a>code</h1><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;widget.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;QPixmap&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;QDebug&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;Qcursor&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;QMetaEnum&gt;</span></span></span><br><span class="line">Widget::<span class="built_in">Widget</span>(QWidget *parent)</span><br><span class="line">    : <span class="built_in">QWidget</span>(parent),</span><br><span class="line">    <span class="built_in">timer</span>(<span class="keyword">new</span> <span class="built_in">QTimer</span>(<span class="keyword">this</span>)),<span class="comment">//自动析构</span></span><br><span class="line">    <span class="built_in">menu</span>(<span class="keyword">new</span> <span class="built_in">QMenu</span>(<span class="keyword">this</span>))</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">this</span>-&gt;<span class="built_in">setWindowFlag</span>(Qt::FramelessWindowHint);<span class="comment">//去除窗口边框</span></span><br><span class="line">    <span class="keyword">this</span>-&gt;<span class="built_in">setAttribute</span>(Qt::WA_TranslucentBackground);<span class="comment">//背景透明</span></span><br><span class="line">    <span class="keyword">this</span>-&gt;<span class="built_in">installEventFilter</span>(<span class="keyword">new</span> DragFilter);</span><br><span class="line"></span><br><span class="line">    <span class="built_in">connect</span>(timer,&amp;QTimer::timeout,<span class="keyword">this</span>,[<span class="keyword">this</span>]()&#123;</span><br><span class="line">        <span class="type">static</span> <span class="type">int</span> index=<span class="number">0</span>;<span class="comment">//记录显示动作的图片索引</span></span><br><span class="line">        <span class="keyword">auto</span> paths=<span class="keyword">this</span>-&gt;action_map.<span class="built_in">value</span>(<span class="keyword">this</span>-&gt;cur_role_act);</span><br><span class="line">        <span class="keyword">this</span>-&gt;cur_role_pix=paths[index++%paths.<span class="built_in">size</span>()];</span><br><span class="line">        <span class="comment">//paintEvent()会递归调用</span></span><br><span class="line">        <span class="keyword">this</span>-&gt;<span class="built_in">update</span>();</span><br><span class="line"></span><br><span class="line">    &#125;);</span><br><span class="line">    <span class="built_in">loadRoleActRes</span>();</span><br><span class="line"></span><br><span class="line">    <span class="built_in">showActAnimation</span>(RoleAct::SayHello);</span><br><span class="line">    <span class="built_in">initMennu</span>();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">Widget::~<span class="built_in">Widget</span>() &#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">Widget::showActAnimation</span><span class="params">(RoleAct k)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    timer-&gt;<span class="built_in">stop</span>();</span><br><span class="line">    <span class="keyword">this</span>-&gt;cur_role_act=k;</span><br><span class="line">    timer-&gt;<span class="built_in">start</span>(<span class="number">500</span>);</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">Widget::onMenuTriggered</span><span class="params">(QAction *action)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    QMetaEnum me=QMetaEnum::<span class="built_in">fromType</span>&lt;RoleAct&gt;();</span><br><span class="line">    <span class="type">bool</span> ok;</span><br><span class="line">    <span class="type">int</span> k=me.<span class="built_in">keyToValue</span>(action-&gt;<span class="built_in">text</span>().<span class="built_in">toStdString</span>().<span class="built_in">c_str</span>(),&amp;ok);</span><br><span class="line">    <span class="keyword">if</span>(!ok)<span class="keyword">return</span>;</span><br><span class="line">    <span class="built_in">showActAnimation</span>(<span class="built_in">static_cast</span>&lt;RoleAct&gt;(k));</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">Widget::paintEvent</span><span class="params">(QPaintEvent *event)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="function">QPainter <span class="title">painter</span><span class="params">(<span class="keyword">this</span>)</span></span>;</span><br><span class="line">    QPixmap pix;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// qDebug()&lt;&lt;&quot;pix path:&quot;&lt;&lt;this-&gt;cur_role_pix.toLocalFile();</span></span><br><span class="line">    pix.<span class="built_in">load</span>(<span class="keyword">this</span>-&gt;cur_role_pix.<span class="built_in">toLocalFile</span>());</span><br><span class="line">    <span class="type">int</span> targetWidth = <span class="number">200</span>;  <span class="comment">// 你想要的宽</span></span><br><span class="line">    <span class="type">int</span> targetHeight = <span class="number">150</span>; <span class="comment">// 你想要的高</span></span><br><span class="line">    pix = pix.<span class="built_in">scaled</span>(targetWidth, targetHeight, Qt::KeepAspectRatio, Qt::SmoothTransformation);</span><br><span class="line">    painter.<span class="built_in">drawPixmap</span>(<span class="number">0</span>,<span class="number">0</span>,pix);</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">Widget::contextMenuEvent</span><span class="params">(QContextMenuEvent *event)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">this</span>-&gt;menu-&gt;<span class="built_in">popup</span>(QCursor::<span class="built_in">pos</span>());</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">Widget::loadRoleActRes</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">auto</span> addRes=[<span class="keyword">this</span>](RoleAct k,QString path,<span class="type">int</span> count)</span><br><span class="line">    &#123;</span><br><span class="line">        QList&lt;QUrl&gt;paths;</span><br><span class="line">        <span class="type">char</span> buf[<span class="number">260</span>];<span class="comment">//path最长255</span></span><br><span class="line">        <span class="keyword">for</span>(<span class="type">int</span> i=<span class="number">0</span>;i&lt;count;++i)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="built_in">memset</span>(buf,<span class="number">0</span>,<span class="built_in">sizeof</span>(buf));</span><br><span class="line">            <span class="built_in">sprintf_s</span>(buf,path.<span class="built_in">toStdString</span>().<span class="built_in">c_str</span>(),i);</span><br><span class="line">            paths.<span class="built_in">append</span>(QUrl::<span class="built_in">fromLocalFile</span>(buf));</span><br><span class="line">        &#125;</span><br><span class="line">        action_map.<span class="built_in">insert</span>(k,paths);</span><br><span class="line">        <span class="comment">// qDebug()&lt;&lt;paths[1];</span></span><br><span class="line"></span><br><span class="line">    &#125;;</span><br><span class="line">    <span class="built_in">addRes</span>(RoleAct::SayHello,<span class="string">&quot;:/pic/image/sayHello/sayHello%d.png&quot;</span>,<span class="number">4</span>);</span><br><span class="line">    <span class="built_in">addRes</span>(RoleAct::Sleep,<span class="string">&quot;:/%d.png&quot;</span>,<span class="number">32</span>);</span><br><span class="line">    <span class="built_in">addRes</span>(RoleAct::Swing,<span class="string">&quot;:/%d.png&quot;</span>,<span class="number">11</span>);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">Widget::initMennu</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    menu-&gt;<span class="built_in">addAction</span>(<span class="string">&quot;SayHello&quot;</span>);</span><br><span class="line">    menu-&gt;<span class="built_in">addAction</span>(<span class="string">&quot;Sleep&quot;</span>);</span><br><span class="line">    menu-&gt;<span class="built_in">addAction</span>(<span class="string">&quot;Swing&quot;</span>);</span><br><span class="line"></span><br><span class="line">    QAction* act=<span class="keyword">new</span> <span class="built_in">QAction</span>(<span class="string">&quot;Hide&quot;</span>);</span><br><span class="line">    <span class="built_in">connect</span>(act,&amp;QAction::triggered,<span class="keyword">this</span>,[<span class="keyword">this</span>]()&#123;</span><br><span class="line">        <span class="keyword">this</span>-&gt;<span class="built_in">setVisible</span>(<span class="literal">false</span>);</span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">    menu-&gt;<span class="built_in">addAction</span>(act);</span><br><span class="line">    <span class="built_in">connect</span>(<span class="keyword">this</span>-&gt;menu,&amp;QMenu::triggered,<span class="keyword">this</span>,Widget::onMenuTriggered);</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">ifndef</span> WIDGET_H</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> WIDGET_H</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;QWidget&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;QPaintEvent&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;QPainter&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;QEvent&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;QMouseEvent&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;QContextMenuEvent&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;QMenu&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;QMap&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;QList&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;QUrl&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;QTimer&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">namespace</span> Act&#123;</span><br><span class="line">    Q_NAMESPACE</span><br><span class="line"><span class="keyword">enum</span> <span class="title class_">RoleAct</span>&#123;</span><br><span class="line">        SayHello,</span><br><span class="line">        Swing,</span><br><span class="line">        Sleep,</span><br><span class="line">    &#125;;</span><br><span class="line">    <span class="built_in">Q_ENUM_NS</span>(RoleAct)<span class="comment">//注册枚举</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">using</span> <span class="keyword">namespace</span> Act;</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Widget</span> : <span class="keyword">public</span> QWidget</span><br><span class="line">&#123;</span><br><span class="line">    Q_OBJECT</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">Widget</span>(QWidget *parent = <span class="literal">nullptr</span>);</span><br><span class="line">    ~<span class="built_in">Widget</span>();</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">showActAnimation</span><span class="params">(RoleAct k)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> slots:</span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">onMenuTriggered</span><span class="params">(QAction *action)</span></span>;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">protected</span>:</span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">paintEvent</span><span class="params">(QPaintEvent *event)</span><span class="keyword">override</span></span>;</span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">contextMenuEvent</span><span class="params">(QContextMenuEvent*event)</span><span class="keyword">override</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">loadRoleActRes</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">initMennu</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    QMap&lt;RoleAct,QList&lt;QUrl&gt;&gt;action_map;</span><br><span class="line">    QTimer* timer;</span><br><span class="line">    RoleAct cur_role_act;</span><br><span class="line">    QUrl cur_role_pix;</span><br><span class="line">    QMenu* menu;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">DragFilter</span>:<span class="keyword">public</span> QObject&#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="type">bool</span> <span class="title">eventFilter</span><span class="params">(QObject*obj,QEvent*event)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">auto</span> w=<span class="built_in">dynamic_cast</span>&lt;QWidget*&gt;(obj);</span><br><span class="line">        <span class="keyword">if</span>(!w)</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">        <span class="keyword">if</span>(event-&gt;<span class="built_in">type</span>()==QEvent::MouseButtonPress)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">auto</span> e =<span class="built_in">dynamic_cast</span>&lt;QMouseEvent*&gt;(event);</span><br><span class="line">            <span class="keyword">if</span>(e)</span><br><span class="line">            &#123;</span><br><span class="line">                pos=e-&gt;<span class="built_in">pos</span>();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">if</span>(event-&gt;<span class="built_in">type</span>()==QEvent::MouseMove)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">auto</span> e =<span class="built_in">dynamic_cast</span>&lt;QMouseEvent*&gt;(event);</span><br><span class="line">            <span class="keyword">if</span>(e)</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">if</span>(e-&gt;<span class="built_in">buttons</span>()&amp;Qt::MouseButton::LeftButton)</span><br><span class="line">                &#123;</span><br><span class="line">                    w-&gt;<span class="built_in">move</span>(e-&gt;<span class="built_in">globalPosition</span>().<span class="built_in">toPoint</span>()-pos);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> QObject::<span class="built_in">eventFilter</span>(obj,event);</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    QPoint pos;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">endif</span> <span class="comment">// WIDGET_H</span></span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;widget.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;QApplication&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;QSystemTrayIcon&gt;</span><span class="comment">//系统菜单托盘</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">char</span> *argv[])</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="function">QApplication <span class="title">a</span><span class="params">(argc, argv)</span></span>;</span><br><span class="line">    Widget w;</span><br><span class="line"></span><br><span class="line">    <span class="function">QSystemTrayIcon <span class="title">sysTray</span><span class="params">(QIcon(<span class="string">&quot;:/pic/image/icon.png&quot;</span>),&amp;w)</span></span>;</span><br><span class="line">    QMenu menu;</span><br><span class="line">    <span class="keyword">auto</span> showAct=<span class="keyword">new</span> <span class="built_in">QAction</span>(<span class="string">&quot;show&quot;</span>,&amp;sysTray);</span><br><span class="line">    <span class="keyword">auto</span> exitAct=<span class="keyword">new</span> <span class="built_in">QAction</span>(<span class="string">&quot;exit&quot;</span>,&amp;sysTray);</span><br><span class="line">    QObject::<span class="built_in">connect</span>(showAct,&amp;QAction::triggered,[&amp;]()&#123;</span><br><span class="line">        w.<span class="built_in">setVisible</span>(<span class="literal">true</span>);</span><br><span class="line">    &#125;);</span><br><span class="line">    QObject::<span class="built_in">connect</span>(exitAct,&amp;QAction::triggered,[&amp;]()&#123;</span><br><span class="line">        QApplication::<span class="built_in">quit</span>();</span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">    menu.<span class="built_in">addAction</span>(showAct);</span><br><span class="line">    menu.<span class="built_in">addAction</span>(exitAct);</span><br><span class="line"></span><br><span class="line">    sysTray.<span class="built_in">setContextMenu</span>(&amp;menu);</span><br><span class="line"></span><br><span class="line">    sysTray.<span class="built_in">show</span>();</span><br><span class="line"></span><br><span class="line">    w.<span class="built_in">show</span>();</span><br><span class="line">    <span class="keyword">return</span> a.<span class="built_in">exec</span>();</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2025/09/22/Qt_study/content/" rel="prev" title="Qt">
+      <i class="fa fa-chevron-left"></i> Qt
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2025/09/22/Qt_study/mysql/" rel="next" title="mysql">
+      mysql <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#learned"><span class="nav-number">1.</span> <span class="nav-text">learned</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#new-learn"><span class="nav-number">2.</span> <span class="nav-text">new_learn</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#code"><span class="nav-number">3.</span> <span class="nav-text">code</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">ljn</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">11</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">ljn</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
