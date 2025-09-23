@@ -145,6 +145,92 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://heydullsam.github.io/2025/09/23/Qt_study/paste_pic/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/my_blog/images/avatar.gif">
+      <meta itemprop="name" content="ljn">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ljn's 学习笔记">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/my_blog/2025/09/23/Qt_study/paste_pic/" class="post-title-link" itemprop="url">paste_pic</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2025-09-23 09:30:55 / 修改时间：09:32:35" itemprop="dateCreated datePublished" datetime="2025-09-23T09:30:55+08:00">2025-09-23</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>updating: “ <a target="_blank" rel="noopener" href="https://github.com/Heydullsam/paste_pic.git">https://github.com/Heydullsam/paste_pic.git</a>“</p>
+<h1 id="1-全屏截图"><a href="#1-全屏截图" class="headerlink" title="1 全屏截图"></a>1 全屏截图</h1><ul>
+<li>设置图标</li>
+<li>QSystemTrayIcon sysMenu.setIcon() .show()</li>
+<li>QCursor::pos()定位鼠标位置</li>
+<li>QRect确定矩形</li>
+<li>QMenu.addAction添加小组件的功能<code>menu-&gt;addAction(&quot;截图&quot;,this,SLOT(grapScreen()));</code>可以直接使用槽函数</li>
+<li>Qpainter.drawpixmap绘制，方便调用重写paintEvent</li>
+</ul>
+<h1 id="2-选区截图"><a href="#2-选区截图" class="headerlink" title="2 选区截图"></a>2 选区截图</h1><ul>
+<li>实现了selectRectWidget类，通过重写鼠标事件实现部分区域的抓取</li>
+<li>通过update()和drawRect实现选中框的更新</li>
+<li>原窗口逻辑中加入resize，避免框选图片被强制拉长</li>
+</ul>
+<h1 id="3-实现截图的拖动功能"><a href="#3-实现截图的拖动功能" class="headerlink" title="3 实现截图的拖动功能"></a>3 实现截图的拖动功能</h1><ul>
+<li>复用了之前DragFiler,加入了右键关闭功能</li>
+<li>安装DragFilter</li>
+</ul>
+<h1 id="4-实现快捷键"><a href="#4-实现快捷键" class="headerlink" title="4 实现快捷键"></a>4 实现快捷键</h1><ul>
+<li>引入第三方库QHotkey, 解决了没有主窗口无法触发截图快捷键的问题<br>+third_party文件目录，修改cmakelists target_link_libraries(paste_pic PRIVATE QHotkey) add_subdirectory(third_party&#x2F;QHotkey)</li>
+<li>通过QDialog QVBoxLayout QKeySequenceEdit收集快捷键输入</li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">SetHotkeyDialog</span> : <span class="keyword">public</span> QDialog &#123;</span><br><span class="line">    Q_OBJECT</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">SetHotkeyDialog</span>(QWidget* parent = <span class="literal">nullptr</span>) : <span class="built_in">QDialog</span>(parent) &#123;</span><br><span class="line">        <span class="built_in">setWindowTitle</span>(<span class="string">&quot;设置快捷键&quot;</span>);</span><br><span class="line">        <span class="keyword">auto</span> layout = <span class="keyword">new</span> <span class="built_in">QVBoxLayout</span>(<span class="keyword">this</span>);</span><br><span class="line">        keyEdit = <span class="keyword">new</span> <span class="built_in">QKeySequenceEdit</span>(<span class="keyword">this</span>);</span><br><span class="line">        <span class="keyword">auto</span> btn = <span class="keyword">new</span> <span class="built_in">QPushButton</span>(<span class="string">&quot;确定&quot;</span>, <span class="keyword">this</span>);</span><br><span class="line">        layout-&gt;<span class="built_in">addWidget</span>(keyEdit);</span><br><span class="line">        layout-&gt;<span class="built_in">addWidget</span>(btn);</span><br><span class="line">        <span class="built_in">connect</span>(btn, &amp;QPushButton::clicked, <span class="keyword">this</span>, &amp;QDialog::accept);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function">QKeySequence <span class="title">keySequence</span><span class="params">()</span> <span class="type">const</span> </span>&#123; <span class="keyword">return</span> keyEdit-&gt;<span class="built_in">keySequence</span>(); &#125;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    QKeySequenceEdit* keyEdit;</span><br><span class="line">    </span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>设置快捷键并调用</li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">SnipasteApp::setHotkey</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    SetHotkeyDialog dlg;</span><br><span class="line">    <span class="keyword">if</span> (dlg.<span class="built_in">exec</span>() == QDialog::Accepted) &#123;</span><br><span class="line">        QKeySequence seq = dlg.<span class="built_in">keySequence</span>();</span><br><span class="line">        <span class="keyword">if</span> (!seq.<span class="built_in">isEmpty</span>()) &#123;</span><br><span class="line">            <span class="keyword">if</span> (m_hotkey) &#123;</span><br><span class="line">                m_hotkey-&gt;<span class="built_in">setRegistered</span>(<span class="literal">false</span>);</span><br><span class="line">                <span class="keyword">delete</span> m_hotkey;</span><br><span class="line">            &#125;</span><br><span class="line">            m_hotkey = <span class="keyword">new</span> <span class="built_in">QHotkey</span>(seq, <span class="literal">true</span>, <span class="keyword">this</span>); <span class="comment">// true 表示立即注册</span></span><br><span class="line">            <span class="built_in">connect</span>(m_hotkey, &amp;QHotkey::activated, <span class="keyword">this</span>, &amp;SnipasteApp::grapScreen);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="https://heydullsam.github.io/2025/09/22/Qt_study/%E4%BF%A1%E5%8F%B7%E4%B8%8E%E6%A7%BD%E7%9A%84%E4%BC%98%E5%8A%BF/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -798,71 +884,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://heydullsam.github.io/2025/09/22/Qt_study/content/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/my_blog/images/avatar.gif">
-      <meta itemprop="name" content="ljn">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="ljn's 学习笔记">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/my_blog/2025/09/22/Qt_study/content/" class="post-title-link" itemprop="url">Qt</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2025-09-22 09:35:41" itemprop="dateCreated datePublished" datetime="2025-09-22T09:35:41+08:00">2025-09-22</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2025-09-12 09:08:10" itemprop="dateModified" datetime="2025-09-12T09:08:10+08:00">2025-09-12</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">filters:</span><br><span class="line">  and:</span><br><span class="line">    - file.folder == this.file.folder</span><br><span class="line">    - file.path != this.file.path</span><br><span class="line">    - file.path != &quot;/assets/&quot;</span><br><span class="line">views:</span><br><span class="line">  - type: table</span><br><span class="line">    name: 表格</span><br><span class="line">    order:</span><br><span class="line">      - title</span><br><span class="line">      - file.name</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -932,7 +953,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/my_blog/archives/">
         
-          <span class="site-state-item-count">11</span>
+          <span class="site-state-item-count">12</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
